@@ -16,6 +16,8 @@ Generally, we assume fecundity and survival follow exponential decline, which ho
 
 4) The amount of food ("resource") available to the prey population is constant. Considering that this quantity may vary significantly with environmental influences and competition with other species of the same trophic level, future versions of this program could be improved with non-constant functions for resource abundance.
 
+5) The strength of density effects on fecundity and survival probabilities is the same for all age/stage classes. This simplifying assumption allows for the program to easily adapt to MPMs of different sizes, however, relaxing this assumption may permit more realistic analysis (e.g. plausibly, the oldest or youngest individuals in a population may be more severely excluded from access to food when intraspecific competition is high).
+
 ## Parameters
 
 num_years:  number of years for which the age structures of the populations are computed
@@ -30,4 +32,21 @@ handling:  handling time for predator; the reciprocal of this parameter determin
 
 resource:  amount of food available to the prey species; this is proportional to a carrying capacity term in standard logistic growth models, however the equilibrium population density of the prey in the absence of predation may not equal this parameter exactly
 
-max_prey_surv_frac:  ...
+max_prey_surv_frac:  factor by which the base survival probabilities for the prey population are multiplied to give the maximum survival probabilities (i.e. in the limit of zero density)
+
+max_predator_surv_frac:  factor by which the base survival probabilities for the predator population are multiplied to give the maximum survival probabilities
+
+max_prey_surv_frac:  factor by which the base fecundity values for the prey population are multiplied to give the maximum fecundity
+
+max_predator_surv_frac:  factor by which the base fecundity values for the predator population are multiplied to give the maximum fecundity
+
+prey_ddf:  strength of the effect of density on prey fecundity; corresponds to a steeper exponential decline of fecundity with increasing density
+
+predator_ddf:  strength of the effect of density on predator fecundity
+
+prey_dds:  strength of the effect of density on prey survival
+
+predator_dds:  strength of the effect of density on predator survival
+
+baseline:  fraction of the maximum population at which the base MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density,
+baseline = 0.5 corresponds to a population at half maximum density, etc.
