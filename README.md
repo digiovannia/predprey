@@ -1,6 +1,6 @@
 # predprey
 
-This program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Given two species whose MPMs are available from the COMADRE database, the script predprey.py:
+This program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Expanding on the model presented in Jensen and Miller (2001), predprey applies discrete-time updates to the age structures of a predator population and prey population via matrix algebra. Given two species whose MPMs are available from the COMADRE database, the script predprey.py:
 
 1) ...
 
@@ -14,9 +14,16 @@ This program uses matrix population models (MPMs) to compute the expected long-t
 f(x) = 1/[1 + p*exp(d*(b-x))-1)]
 Generally, we assume fecundity and survival follow exponential decline, which holds for certain values of the parameters in the functional form above. However, the logistic function form is used to allow for more flexibility, based on the user's assumptions about the baseline population from which the MPM was derived.
 
-4) The amount of food ("resource") available to the prey population is constant. Considering that this quantity may vary significantly with environmental influences and competition with other species of the same trophic level, future versions of this program could be improved with non-constant functions for resource abundance.
+4) The amount of food ("resource") available to the prey population is constant, as in Jensen and Miller (2001). Considering that this quantity may vary significantly with environmental influences and competition with other species of the same trophic level, future versions of this program could be improved with non-constant functions for resource abundance.
 
-5) The strength of density effects on fecundity and survival probabilities is the same for all age/stage classes. This simplifying assumption allows for the program to easily adapt to MPMs of different sizes, however, relaxing this assumption may permit more realistic analysis (e.g. plausibly, the oldest or youngest individuals in a population may be more severely excluded from access to food when intraspecific competition is high).
+5) The strength of density effects on fecundity and survival probabilities is the same for all age/stage classes, as in Jensen and Miller (2001). This simplifying assumption allows for the program to easily adapt to MPMs of different sizes, however, relaxing this assumption may permit more realistic analysis (e.g. plausibly, the oldest or youngest individuals in a population may be more severely excluded from access to food when intraspecific competition is high).
+
+6) Predator fecundity increases linearly with the total prey population, as in Jensen and Miller (2001) and the Lotka-Volterra equations.
+6') Predator fecundity increases with the predation rate, as defined by the type II functional response. This follows the assumption of Rosenzweig and MacArthur (1963).
+
+7) The intrinsic predation risk and functional response do not depend on prey age or predator age. This simplifies the parametrization,
+but a more realistic iteration of our model would account for the greater vulnerability of different ages of prey and greater hunting
+ability/fitness of different ages of predators.
 
 ## Parameters
 
@@ -50,3 +57,8 @@ predator_dds:  strength of the effect of density on predator survival
 
 baseline:  fraction of the maximum population at which the base MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density,
 baseline = 0.5 corresponds to a population at half maximum density, etc.
+
+# References
+
+1) A. Jensen, Miller D. Age structured matrix predation model for the dynamics of wolf and deer populations. Ecol. Model., 141 (1) (2001), pp. 299-305.
+2) M. L. Rosenzweig and R. H. MacArthur, "Graphical Representation and Stability Conditions of Predator-Prey Interactions," The American Naturalist 97, no. 895 (Jul. - Aug., 1963): 209-223.
