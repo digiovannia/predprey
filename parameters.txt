@@ -1,0 +1,17 @@
+{
+    "num_years": 200,
+    "st_prey": 850,
+    "st_predator": 5,
+    "search": 0.2,
+    "handling": 0.046666666,
+    "resource": 2000,
+    "max_prey_surv_frac": 1.01,
+    "max_predator_surv_frac": 1.2,
+    "max_prey_fec_frac": 1.01,
+    "max_predator_fec_frac": 2,
+    "prey_ddf": 20,
+    "prey_dds": 20,
+    "predator_ddf": 5,
+    "predator_dds": 5,
+    "baseline": 0.5
+}
