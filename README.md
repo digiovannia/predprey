@@ -55,10 +55,30 @@ prey_dds:  strength of the effect of density on prey survival
 
 predator_dds:  strength of the effect of density on predator survival
 
-baseline:  fraction of the maximum population at which the base MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density,
-baseline = 0.5 corresponds to a population at half maximum density, etc.
+baseline:  fraction of the maximum population at which the base MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density, baseline = 0.5 corresponds to a population at half maximum density, etc.
 
-# References
+## Guide
+
+The predprey.py script reads from the following input files and folders, which must be contained within your working directory:
+
+1) parameters.txt
+2) base_mpms/
+
+parameters.txt must be in JSON format, containing key-value pairs such that all keys match those listed under "Parameters" above. This repo contains a sample parameters.txt file. Each base MPM is stored in the base_mpms folder in a text file with the format matching the example provided in this repository, that is, with entries on the same row separated by tabs.
+
+...
+
+When you execute the command "python predprey.py", you will be prompted to specify:
+
+1) The name of the parameter whose value you would like to vary.
+2) A string containing the minimum, maximum (exclusive), and increment over which the parameter value will vary. These three values must
+be space-separated.
+3) Whether you would like detailed output to be printed to the terminal.
+4) The path for your working directory.
+5) File name for the prey species.
+6) File name for the predator species.
+
+## References
 
 1) A. Jensen, Miller D. Age structured matrix predation model for the dynamics of wolf and deer populations. Ecol. Model., 141 (1) (2001), pp. 299-305.
 2) M. L. Rosenzweig and R. H. MacArthur, "Graphical Representation and Stability Conditions of Predator-Prey Interactions," The American Naturalist 97, no. 895 (Jul. - Aug., 1963): 209-223.
