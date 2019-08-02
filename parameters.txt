@@ -13,5 +13,6 @@
     "prey_dds": 20,
     "predator_ddf": 5,
     "predator_dds": 5,
-    "baseline": 0.5
+    "baseline_prey": 0.5,
+    "baseline_predator": 0.5
 }
