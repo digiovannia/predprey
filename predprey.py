@@ -68,17 +68,6 @@ def logistic_scale(DNt, d, b, base, M):
     p = np.divide(base - M, denom, where=denom!=0)
     return 1 / (1 + p*(np.exp(d*(b-(1-DNt)))-1))
 
-'''
-prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
-                                                params['baseline'],
-                                                prey_base_fec,
-                                                prey_max_fec))
-        prey_dens_surv = np.diag(logistic_scale(prey_DNt, prey_dds,
-                                                params['baseline'],
-                                                prey_base_surv,
-                                                prey_max_surv))
-'''
-
 
 #############################################################################
 ############################# Reading in data files #########################
@@ -256,21 +245,21 @@ for val in param_values:
 
             # Computing density effect matrices for both populations
             prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
-                                                    params['baseline'],
+                                                    params['baseline_prey'],
                                                     prey_base_fec,
                                                     prey_max_fec))
             prey_dens_surv = np.diag(logistic_scale(prey_DNt, prey_dds,
-                                                    params['baseline'],
+                                                    params['baseline_prey'],
                                                     prey_base_surv,
                                                     prey_max_surv))
             predator_dens_fec = np.diag(logistic_scale(predator_DNt,
                                                     predator_ddf,
-                                                    params['baseline'],
+                                                    params['baseline_predator'],
                                                     predator_base_fec,
                                                     predator_max_fec))
             predator_dens_surv = np.diag(logistic_scale(predator_DNt,
                                                         predator_dds,
-                                                        params['baseline'],
+                                                        params['baseline_predator'],
                                                         predator_base_surv,
                                                         predator_max_surv))                                                                              
 
@@ -305,9 +294,9 @@ for val in param_values:
             # To calculate the number of prey lost to density effects, we compute
             # the prey vector we would have expected if there were no density
             # effect (fix prey_DNt = 0), and subtract the actual prey vector.
-            prey_dens_fec = np.diag(logistic_scale(0, prey_ddf, params['baseline'],
+            prey_dens_fec = np.diag(logistic_scale(0, prey_ddf, params['baseline_prey'],
                                                 prey_base_fec, prey_max_fec))
-            prey_dens_surv = np.diag(logistic_scale(0, prey_dds, params['baseline'],
+            prey_dens_surv = np.diag(logistic_scale(0, prey_dds, params['baseline_prey'],
                                                     prey_base_surv, prey_max_surv))
             Md_sd = prey_M.dot(prey_dens_fec)
             Sd_sd = prey_S.dot(prey_dens_surv) 
