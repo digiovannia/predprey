@@ -65,7 +65,8 @@ def logistic_scale(DNt, d, b, base, M):
     and survival probability with density.
     '''
     p = (np.exp(d*(b-(1-DNt)))-1)/(np.exp(d*(b-1))-1)
-    return np.divide(M, M + (base - M)*p, where=(M + (base - M)*p)!=0)
+    ratio = np.divide(base - M, M, where=M!=0)
+    return np.divide(1, 1 + ratio*p, where=(1 + ratio*p)!=0)
 
 
 #############################################################################
