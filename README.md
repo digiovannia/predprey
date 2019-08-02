@@ -60,7 +60,9 @@ prey_dds:  strength of the effect of density on prey survival
 
 predator_dds:  strength of the effect of density on predator survival
 
-baseline:  fraction of the maximum population at which the base MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density, baseline = 0.5 corresponds to a population at half maximum density, etc.
+baseline_prey:  fraction of the maximum population at which the base prey MPM is fixed; e.g. baseline = 1 implies the base MPM represents the population at maximum density, baseline = 0.5 corresponds to a population at half maximum density, etc.
+
+baseline_predator:  baseline fraction for predator MPM
 
 ## Guide
 
