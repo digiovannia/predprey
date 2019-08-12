@@ -4,11 +4,6 @@ import pandas as pd
 import json
 import os
 
-'''
-Want to save:
-3) Equilibrium age distribution
-'''
-
 #############################################################################
 ################################# Functions #################################
 
@@ -53,18 +48,11 @@ def logistic_scale(DNt, d, b, base, M):
     by base fecundity or survival to give the density-adjusted
     fecundity or survival, based on the assumption of logistically
     declining fecundity and survival probability (in general).
-
-    Inputs:
-       DNt: population divided by resource
-       d: strength of density-dependence
-       b:
-       base:
-       M: 
     
     Based on the assumption of exponentially declining fecundity
     and survival probability with density.
     '''
-    p = (np.exp(d*(b-(1-DNt)))-1)/(np.exp(d*(b-1))-1)
+    p = (np.exp(d*(b-DNt))-1)/(np.exp(d*(b-1))-1)
     ratio = np.divide(base - M, M, where=M!=0)
     return np.divide(1, 1 + ratio*p, where=(1 + ratio*p)!=0)
 
@@ -101,13 +89,6 @@ for fol in folders:
     if not os.path.exists('./' + spec_folder + fol):
         os.makedirs('./' + spec_folder + fol)
 os.chdir('./' + spec_folder)
-
-'''
-verbose = False
-source = 'C:/Users/antho/Downloads/'
-prey_filename = source + '/base_mpms/' + 'Jensen_deer.txt'
-predator_filename = source + '/base_mpms/' + 'Jensen_wolf.txt'
-'''
 
 prey_MPM = np.array(pd.read_csv('../base_mpms/' + prey_filename,
                                 sep='\t', header=None))
@@ -240,8 +221,8 @@ for val in param_values:
                 pred_ratio = predNt/predK
             # The following variables are measures of population saturation,
             # to determine density effects.
-            prey_DNt = max(min(1, Nt/params['resource']), 0)
-            predator_DNt = max(min(1, pred_ratio), 0)
+            prey_DNt = max(min(1, 1-Nt/params['resource']), 0)
+            predator_DNt = max(min(1, 1-pred_ratio), 0)
 
             # Computing density effect matrices for both populations
             prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
@@ -293,10 +274,10 @@ for val in param_values:
 
             # To calculate the number of prey lost to density effects, we compute
             # the prey vector we would have expected if there were no density
-            # effect (fix prey_DNt = 0), and subtract the actual prey vector.
-            prey_dens_fec = np.diag(logistic_scale(0, prey_ddf, params['baseline_prey'],
+            # effect (fix prey_DNt = 1), and subtract the actual prey vector.
+            prey_dens_fec = np.diag(logistic_scale(1, prey_ddf, params['baseline_prey'],
                                                 prey_base_fec, prey_max_fec))
-            prey_dens_surv = np.diag(logistic_scale(0, prey_dds, params['baseline_prey'],
+            prey_dens_surv = np.diag(logistic_scale(1, prey_dds, params['baseline_prey'],
                                                     prey_base_surv, prey_max_surv))
             Md_sd = prey_M.dot(prey_dens_fec)
             Sd_sd = prey_S.dot(prey_dens_surv) 
