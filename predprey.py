@@ -101,6 +101,22 @@ prey_M, prey_S = MPM_split(prey_MPM)
 predator_M, predator_S = MPM_split(predator_MPM)
 with open('../parameters.txt', 'r') as read_file:
     params = json.load(read_file)
+    
+pos_integers = ['num_years', 'st_prey', 'st_predator']
+fractions = ['baseline_prey', 'baseline_predator']
+pos_reals = ['search', 'handling', 'resource']
+above_one = ['max_prey_surv_frac', 'max_predator_surv_frac',
+             'max_prey_fec_frac', 'max_predator_fec_frac']
+    
+for par, val in params.items():
+    if par in pos_integers:
+        assert (type(val) == int and val > 0), 'Invalid %s value' % par
+    if par in fractions:
+        assert (0 < val <= 1), 'Invalid %s value' % par
+    if par in pos_reals:
+        assert val > 0, 'Invalid %s value' % par
+    if par in above_one:
+        assert (val >= 1), 'Invalid %s value' % par
 
 #############################################################################
 ########### Defining vectors based on the parameter dictionary ##############
