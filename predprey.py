@@ -116,13 +116,13 @@ for val in param_values:
     predation_data = [[0]*prey_M.shape[0]]
     density_data = [[0]*prey_M.shape[0]]
 
-    f = 2/params['resource'] # per-prey term for predation risk, before
+    q = 2/params['resource'] # per-prey term for predation risk, before
                              # functional response; the more prey resource, which
                              # is assumed proportional to prey area, the lower
                              # the intrinsic predation risk
-    F = np.ones((prey_M.shape[0], predator_M.shape[0]))
+    Q = np.ones((prey_M.shape[0], predator_M.shape[0]))
     # Simplifying assumption that predation rates do not differ between ages
-    F = f*F
+    Q = q*Q
     # Simplifying assumption that density dependence strengths do not differ
     # between ages:
     prey_dens_dep_fec = np.array([params['prey_ddf']]*prey_M.shape[0])
@@ -167,7 +167,7 @@ for val in param_values:
     #for i in range(4):
 
         # Depending on the value of i, these may be altered:
-        Fmat = F.copy()
+        Qmat = Q.copy()
         prey_ddf = prey_dens_dep_fec.copy()
         prey_dds = prey_dens_dep_surv.copy()
         predator_ddf = predator_dens_dep_fec.copy()
@@ -177,7 +177,7 @@ for val in param_values:
         print('\n')
         if i == 1 or i == 3:
             # For a no-predation setting, predation matrix is 0.
-            Fmat *= 0
+            Qmat *= 0
         if i == 2 or i == 3:
             # For a no-density-effects setting, strength of density
             # effects is set to 0.
@@ -257,8 +257,8 @@ for val in param_values:
             # is multiplied by intrinsic predation risk (f), and the effect on each
             # age class of prey is the sum of the predator population weighted by
             # age-specific predation effect terms in Ffunc.
-            Ffunc = max_predation*Fmat # Functional response
-            predation_matrix = np.diag(Ffunc.dot(predator_structure))
+            Qfunc = max_predation*Qmat # Functional response
+            predation_matrix = np.diag(Qfunc.dot(predator_structure))
 
             # The prey MPM is modified by density and predation effects, and the
             # predator MPM is modified by density effects. We then project the
