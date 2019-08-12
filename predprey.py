@@ -245,7 +245,7 @@ for val in param_values:
                                                         predator_max_surv))                                                                              
 
             Mw = predator_M.copy()
-            Mw[0] = Mw[0]*max_predation # Predator fecundity increases with kill rate
+            Mw = Mw*max_predation # Predator fecundity increases with kill rate
 
             # Computing density-modified fecundity and survival matrices
             Md = prey_M.dot(prey_dens_fec)
