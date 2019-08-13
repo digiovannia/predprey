@@ -112,7 +112,7 @@ for par, val in params.items():
     if par in pos_integers:
         assert (type(val) == int and val > 0), 'Invalid %s value' % par
     if par in fractions:
-        assert (0 < val <= 1), 'Invalid %s value' % par
+        assert (0 < val < 1), 'Invalid %s value' % par
     if par in pos_reals:
         assert val > 0, 'Invalid %s value' % par
     if par in above_one:
