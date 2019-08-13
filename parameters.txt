@@ -4,7 +4,7 @@
     "st_predator": 5,
     "search": 0.2,
     "handling": 0.046666666,
-    "resource": 2000,
+    "resource": 1000,
     "max_prey_surv_frac": 1.01,
     "max_predator_surv_frac": 1.2,
     "max_prey_fec_frac": 1.01,
