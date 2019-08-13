@@ -104,7 +104,7 @@ with open('../parameters.txt', 'r') as read_file:
     
 pos_integers = ['num_years', 'st_prey', 'st_predator']
 fractions = ['baseline_prey', 'baseline_predator']
-pos_reals = ['search', 'handling', 'resource', 'noise_sd']
+pos_reals = ['search', 'handling', 'resource']
 above_one = ['max_prey_surv_frac', 'max_predator_surv_frac',
              'max_prey_fec_frac', 'max_predator_fec_frac']
     
@@ -117,6 +117,8 @@ for par, val in params.items():
         assert val > 0, 'Invalid %s value' % par
     if par in above_one:
         assert (val >= 1), 'Invalid %s value' % par
+    if par == 'noise_sd':
+        assert val >= 0, 'Invalid %s value' % par
 
 #############################################################################
 ########### Defining vectors based on the parameter dictionary ##############
