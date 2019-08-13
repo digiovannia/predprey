@@ -272,7 +272,7 @@ for val in param_values:
             # Computing density-modified fecundity and survival matrices
             Md = prey_M.dot(prey_dens_fec)
             Mw = Mw.dot(predator_dens_fec)
-            Sd = prey_S.dot(prey_dens_surv)
+            Sd = Sd.dot(prey_dens_surv)
             Sw = predator_S.dot(predator_dens_surv)
 
             # To determine the predation effect on survival probability, kill rate
