@@ -104,7 +104,7 @@ with open('../parameters.txt', 'r') as read_file:
     
 pos_integers = ['num_years', 'st_prey', 'st_predator']
 fractions = ['baseline_prey', 'baseline_predator']
-pos_reals = ['search', 'handling', 'resource']
+pos_reals = ['search', 'handling', 'resource', 'noise_sd']
 above_one = ['max_prey_surv_frac', 'max_predator_surv_frac',
              'max_prey_fec_frac', 'max_predator_fec_frac']
     
@@ -239,6 +239,10 @@ for val in param_values:
             # to determine density effects.
             prey_DNt = max(min(1, 1-Nt/params['resource']), 0)
             predator_DNt = max(min(1, 1-pred_ratio), 0)
+            
+            Sd = prey_S.copy()
+            # Adding noise to first-year prey survival
+            Sd[1,0] = min(max(0, Sd[1,0]+np.random.normal(0, params['noise_sd'])), 1)
 
             # Computing density effect matrices for both populations
             prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
