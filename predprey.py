@@ -148,8 +148,6 @@ for val in param_values:
     predator_dens_dep_fec = np.array([params['predator_ddf']]*predator_M.shape[0])
     predator_dens_dep_surv = np.array([params['predator_dds']]*predator_M.shape[0])
 
-    age_structure_dfs = {}
-
     prey_base_fec = prey_M[0]
     predator_base_fec = predator_M[0]
     prey_base_surv = np.append(np.diagonal(prey_S[1:]), 0)
@@ -169,235 +167,211 @@ for val in param_values:
     prey_max_fec = prey_base_fec*params['max_prey_fec_frac']
     predator_max_fec = predator_base_fec*params['max_predator_fec_frac']
 
-    # For storing prey MPM data
-    versions = ['Predation, Density', 'No Predation, Density',
-                'Predation, No Density', 'No Predation, No Density']
-
-    preyMPM_dict = {'Predation, Density': [],
-                    'No Predation, Density': [],
-                    'Predation, No Density': [],
-                    'No Predation, No Density': []}
+    preyMPM_list = []
 
     #############################################################################
     ################### Computing age structures over time ######################
 
-    for i in range(1):
-    #for i in range(4):
+    Qmat = Q.copy()
+    prey_ddf = prey_dens_dep_fec.copy()
+    prey_dds = prey_dens_dep_surv.copy()
+    predator_ddf = predator_dens_dep_fec.copy()
+    predator_dds = predator_dens_dep_surv.copy()
 
-        # Depending on the value of i, these may be altered:
-        Qmat = Q.copy()
-        prey_ddf = prey_dens_dep_fec.copy()
-        prey_dds = prey_dens_dep_surv.copy()
-        predator_ddf = predator_dens_dep_fec.copy()
-        predator_dds = predator_dens_dep_surv.copy()
+    # Initializing prey and predator vectors, assuming populations
+    # start at age 0
+    prey_structure = np.zeros(prey_M.shape[0])
+    prey_structure[0] = params['st_prey']
+    predator_structure = np.zeros(predator_M.shape[0])
+    predator_structure[0] = params['st_predator']
 
-        print(versions[i])
+    age_file.write(' '.join([str(i) for i in list(prey_structure)]) + '\n')
+
+    # Lists for storing results
+    total_prey_pop = [params['st_prey']]
+    total_predator_pop = [params['st_predator']]
+    prey_structure_list = [list(prey_structure)]
+    predator_structure_list = [list(predator_structure)] 
+
+    if verbose:
+        print('Starting Populations')
+        print('Prey:')
+        print(prey_structure)
+        print('Predators:')
+        print(predator_structure)
         print('\n')
-        if i == 1 or i == 3:
-            # For a no-predation setting, predation matrix is 0.
-            Qmat *= 0
-        if i == 2 or i == 3:
-            # For a no-density-effects setting, strength of density
-            # effects is set to 0.
-            prey_ddf = 0
-            prey_dds = 0
 
-        # Initializing prey and predator vectors, assuming populations
-        # start at age 0
-        prey_structure = np.zeros(prey_M.shape[0])
-        prey_structure[0] = params['st_prey']
-        predator_structure = np.zeros(predator_M.shape[0])
-        predator_structure[0] = params['st_predator']
+    for year in range(params['num_years']):
+        Nt = np.sum(prey_structure)
+        predNt = np.sum(predator_structure)
+        max_predation = pred_rate(params['search'], Nt, params['handling'])
+        if Nt == 0: #implies max_predation is 0 as well
+            predK = 0 # no resource so starvation probability must be at max
+        else:
+            predK = Nt/max_predation
+        if predK == 0:
+            pred_ratio = np.Inf
+        else:
+            pred_ratio = predNt/predK
+        # The following variables are measures of population saturation,
+        # to determine density effects.
+        prey_DNt = max(min(1, 1-Nt/params['resource']), 0)
+        predator_DNt = max(min(1, 1-pred_ratio), 0)
 
+        Sd = prey_S.copy()
+        # Adding noise to first-year prey survival
+        Sd[1,0] = min(max(0, Sd[1,0]+np.random.normal(0, params['noise_sd'])), 1)
+
+        # Computing density effect matrices for both populations
+        prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
+                                                params['baseline_prey'],
+                                                prey_base_fec,
+                                                prey_max_fec))
+        prey_dens_surv = np.diag(logistic_scale(prey_DNt, prey_dds,
+                                                params['baseline_prey'],
+                                                prey_base_surv,
+                                                prey_max_surv))
+        predator_dens_fec = np.diag(logistic_scale(predator_DNt,
+                                                predator_ddf,
+                                                params['baseline_predator'],
+                                                predator_base_fec,
+                                                predator_max_fec))
+        predator_dens_surv = np.diag(logistic_scale(predator_DNt,
+                                                    predator_dds,
+                                                    params['baseline_predator'],
+                                                    predator_base_surv,
+                                                    predator_max_surv))                                                                              
+
+        Mw = predator_M.copy()
+        Mw = Mw*max_predation # Predator fecundity increases with kill rate
+
+        # Computing density-modified fecundity and survival matrices
+        Md = prey_M.dot(prey_dens_fec)
+        Mw = Mw.dot(predator_dens_fec)
+        Sd = Sd.dot(prey_dens_surv)
+        Sw = predator_S.dot(predator_dens_surv)
+
+        # To determine the predation effect on survival probability, kill rate
+        # is multiplied by intrinsic predation risk (f), and the effect on each
+        # age class of prey is the sum of the predator population weighted by
+        # age-specific predation effect terms in Ffunc.
+        Qfunc = max_predation*Qmat # Functional response
+        predation_matrix = np.diag(Qfunc.dot(predator_structure))
+
+        # The prey MPM is modified by density and predation effects, and the
+        # predator MPM is modified by density effects. We then project the
+        # prey and predator age vectors with these modified MPMs, rounding
+        # negative numbers up to 0 if necessary.
+        prey_MPM_prime = (Md+Sd).dot(np.eye(prey_S.shape[0])-predation_matrix)
+        preyMPM_list.append(prey_MPM_prime)
+        predator_MPM_prime = Mw + Sw
+        new_prey_structure = prey_MPM_prime.dot(prey_structure)
+        new_prey_structure = np.maximum(new_prey_structure, 0)
+        new_predator_structure = predator_MPM_prime.dot(predator_structure)
+        new_predator_structure = np.maximum(new_predator_structure, 0)
+
+        # To calculate the number of prey lost to density effects, we compute
+        # the prey vector we would have expected if there were no density
+        # effect (fix prey_DNt = 1), and subtract the actual prey vector.
+        prey_dens_fec = np.diag(logistic_scale(1, prey_ddf, params['baseline_prey'],
+                                            prey_base_fec, prey_max_fec))
+        prey_dens_surv = np.diag(logistic_scale(1, prey_dds, params['baseline_prey'],
+                                                prey_base_surv, prey_max_surv))
+        Md_sd = prey_M.dot(prey_dens_fec)
+        Sd_sd = prey_S.dot(prey_dens_surv) 
+        MPMsd = (Md_sd+Sd_sd).dot(np.eye(prey_S.shape[0])-predation_matrix)
+        sans_density = MPMsd.dot(prey_structure)
+        lost_to_density = sans_density - new_prey_structure
+
+        # To calculate the number of prey lost to predation, we compute the
+        # prey vector expected assuming no predation effect, and subtract
+        # the actual prey vector.
+        sans_predation = (Md + Sd).dot(prey_structure)
+        lost_to_pred = sans_predation - new_prey_structure
+
+        # Update the vectors
+        prey_structure = new_prey_structure
+        predator_structure = new_predator_structure
+
+        total_prey_pop.append(np.sum(prey_structure))
+        total_predator_pop.append(np.sum(predator_structure))
+        prey_structure_list.append(list(prey_structure))
+        predator_structure_list.append(list(predator_structure))
+
+        predation_data.append(list(lost_to_pred))
+        density_data.append(list(lost_to_density))
+        predation_file.write(' '.join([str(i) for i in list(lost_to_pred)]) + '\n')
+        density_file.write(' '.join([str(i) for i in list(lost_to_density)]) + '\n')
         age_file.write(' '.join([str(i) for i in list(prey_structure)]) + '\n')
 
-        # Lists for storing results
-        total_prey_pop = [params['st_prey']]
-        total_predator_pop = [params['st_predator']]
-        prey_structure_list = [list(prey_structure)]
-        predator_structure_list = [list(predator_structure)] 
-
         if verbose:
-            print('Starting Populations')
-            print('Prey:')
-            print(prey_structure)
+            print('Year', str(year+1))
+            print('Prey Age Structure:')
+            print(list(prey_structure))
+            print('Prey Lost to Predation:')
+            print(list(lost_to_pred))
+            print('Prey Lost to Density:')
+            print(list(lost_to_density))
+            print('Modified Prey MPM:')
+            print(prey_MPM_prime)
             print('Predators:')
-            print(predator_structure)
+            print(list(predator_structure))
             print('\n')
 
-        for year in range(params['num_years']):
-            Nt = np.sum(prey_structure)
-            predNt = np.sum(predator_structure)
-            max_predation = pred_rate(params['search'], Nt, params['handling'])
-            if Nt == 0: #implies max_predation is 0 as well
-                predK = 0 # no resource so starvation probability must be at max
-            else:
-                predK = Nt/max_predation
-            if predK == 0:
-                pred_ratio = np.Inf
-            else:
-                pred_ratio = predNt/predK
-            # The following variables are measures of population saturation,
-            # to determine density effects.
-            prey_DNt = max(min(1, 1-Nt/params['resource']), 0)
-            predator_DNt = max(min(1, 1-pred_ratio), 0)
-            
-            Sd = prey_S.copy()
-            # Adding noise to first-year prey survival
-            Sd[1,0] = min(max(0, Sd[1,0]+np.random.normal(0, params['noise_sd'])), 1)
+    fig1 = plt.figure()
+    plt.plot(total_prey_pop)
+    plt.title('Total Prey Population Over Time')
+    name = 'total_figures/prey_pop_' + param_to_vary + '_' + str(val)
+    fig1.savefig(name + '.png')
 
-            # Computing density effect matrices for both populations
-            prey_dens_fec = np.diag(logistic_scale(prey_DNt, prey_ddf,
-                                                    params['baseline_prey'],
-                                                    prey_base_fec,
-                                                    prey_max_fec))
-            prey_dens_surv = np.diag(logistic_scale(prey_DNt, prey_dds,
-                                                    params['baseline_prey'],
-                                                    prey_base_surv,
-                                                    prey_max_surv))
-            predator_dens_fec = np.diag(logistic_scale(predator_DNt,
-                                                    predator_ddf,
-                                                    params['baseline_predator'],
-                                                    predator_base_fec,
-                                                    predator_max_fec))
-            predator_dens_surv = np.diag(logistic_scale(predator_DNt,
-                                                        predator_dds,
-                                                        params['baseline_predator'],
-                                                        predator_base_surv,
-                                                        predator_max_surv))                                                                              
-
-            Mw = predator_M.copy()
-            Mw = Mw*max_predation # Predator fecundity increases with kill rate
-
-            # Computing density-modified fecundity and survival matrices
-            Md = prey_M.dot(prey_dens_fec)
-            Mw = Mw.dot(predator_dens_fec)
-            Sd = Sd.dot(prey_dens_surv)
-            Sw = predator_S.dot(predator_dens_surv)
-
-            # To determine the predation effect on survival probability, kill rate
-            # is multiplied by intrinsic predation risk (f), and the effect on each
-            # age class of prey is the sum of the predator population weighted by
-            # age-specific predation effect terms in Ffunc.
-            Qfunc = max_predation*Qmat # Functional response
-            predation_matrix = np.diag(Qfunc.dot(predator_structure))
-
-            # The prey MPM is modified by density and predation effects, and the
-            # predator MPM is modified by density effects. We then project the
-            # prey and predator age vectors with these modified MPMs, rounding
-            # negative numbers up to 0 if necessary.
-            prey_MPM_prime = (Md+Sd).dot(np.eye(prey_S.shape[0])-predation_matrix)
-            preyMPM_dict[versions[i]].append(prey_MPM_prime)
-            predator_MPM_prime = Mw + Sw
-            new_prey_structure = prey_MPM_prime.dot(prey_structure)
-            new_prey_structure = np.maximum(new_prey_structure, 0)
-            new_predator_structure = predator_MPM_prime.dot(predator_structure)
-            new_predator_structure = np.maximum(new_predator_structure, 0)
-
-            # To calculate the number of prey lost to density effects, we compute
-            # the prey vector we would have expected if there were no density
-            # effect (fix prey_DNt = 1), and subtract the actual prey vector.
-            prey_dens_fec = np.diag(logistic_scale(1, prey_ddf, params['baseline_prey'],
-                                                prey_base_fec, prey_max_fec))
-            prey_dens_surv = np.diag(logistic_scale(1, prey_dds, params['baseline_prey'],
-                                                    prey_base_surv, prey_max_surv))
-            Md_sd = prey_M.dot(prey_dens_fec)
-            Sd_sd = prey_S.dot(prey_dens_surv) 
-            MPMsd = (Md_sd+Sd_sd).dot(np.eye(prey_S.shape[0])-predation_matrix)
-            sans_density = MPMsd.dot(prey_structure)
-            lost_to_density = sans_density - new_prey_structure
-
-            # To calculate the number of prey lost to predation, we compute the
-            # prey vector expected assuming no predation effect, and subtract
-            # the actual prey vector.
-            sans_predation = (Md + Sd).dot(prey_structure)
-            lost_to_pred = sans_predation - new_prey_structure
-
-            # Update the vectors
-            prey_structure = new_prey_structure
-            predator_structure = new_predator_structure
-
-            total_prey_pop.append(np.sum(prey_structure))
-            total_predator_pop.append(np.sum(predator_structure))
-            prey_structure_list.append(list(prey_structure))
-            predator_structure_list.append(list(predator_structure))
-
-            predation_data.append(list(lost_to_pred))
-            density_data.append(list(lost_to_density))
-            predation_file.write(' '.join([str(i) for i in list(lost_to_pred)]) + '\n')
-            density_file.write(' '.join([str(i) for i in list(lost_to_density)]) + '\n')
-            age_file.write(' '.join([str(i) for i in list(prey_structure)]) + '\n')
-
-            if verbose:
-                print('Year', str(year+1))
-                print('Prey Age Structure:')
-                print(list(prey_structure))
-                print('Prey Lost to Predation:')
-                print(list(lost_to_pred))
-                print('Prey Lost to Density:')
-                print(list(lost_to_density))
-                print('Modified Prey MPM:')
-                print(prey_MPM_prime)
-                print('Predators:')
-                print(list(predator_structure))
-                print('\n')
-
-        fig1 = plt.figure()
-        plt.plot(total_prey_pop)
-        plt.title('Total Prey Population Over Time')
-        name = 'total_figures/prey_pop_' + param_to_vary + '_' + str(val)
-        fig1.savefig(name + '.png')
-
-        # Age distributions
-        fig2 = plt.figure()
-        with np.errstate(divide='ignore', invalid='ignore'):
-            x = range(params['num_years']+1)
-            y = np.array(prey_structure_list).T / np.array(total_prey_pop)
-            plt.stackplot(x, y)
-        plt.title('Prey Age Structure Over Time')
-        name = 'dist_figures/prey_rel_age_' + param_to_vary + '_' + str(val)
-        fig2.savefig(name + '.png')
-
-        fig3 = plt.figure()
+    # Age distributions
+    fig2 = plt.figure()
+    with np.errstate(divide='ignore', invalid='ignore'):
         x = range(params['num_years']+1)
-        y = np.array(predation_data).T
+        y = np.array(prey_structure_list).T / np.array(total_prey_pop)
         plt.stackplot(x, y)
-        plt.title('Prey Killed by Predation')
-        name = 'pred_figures/by_predation_' + param_to_vary + '_' + str(val)
-        fig3.savefig(name + '.png')
+    plt.title('Prey Age Structure Over Time')
+    name = 'dist_figures/prey_rel_age_' + param_to_vary + '_' + str(val)
+    fig2.savefig(name + '.png')
 
-        fig4 = plt.figure()
-        x = range(params['num_years']+1)
-        y = np.array(density_data).T
-        plt.stackplot(x, y)
-        plt.title('Prey Killed by Density')
-        name = 'density_figures/by_density_' + param_to_vary + '_' + str(val)
-        fig4.savefig(name + '.png')
+    fig3 = plt.figure()
+    x = range(params['num_years']+1)
+    y = np.array(predation_data).T
+    plt.stackplot(x, y)
+    plt.title('Prey Killed by Predation')
+    name = 'pred_figures/by_predation_' + param_to_vary + '_' + str(val)
+    fig3.savefig(name + '.png')
 
-        print(param_to_vary + ' == ' + str(val))
-        print('\n')
-        print('Prey Equilibrium Age Structure(s):')
-        if total_prey_pop[-1] > 0:
-            prey_eq_age = np.array(prey_structure_list[-1])/total_prey_pop[-1]
-            prey_eq_last_age = np.array(prey_structure_list[-2])/total_prey_pop[-2]
-            if not np.allclose(prey_eq_age, prey_eq_last_age):
-                # There may be fluctuations in the age distribution. If the last
-                # two age distributions differ substantially, check if every other
-                # age distribution is equal. If so, the "equilibrium" is a pair
-                # of distributions.
-                prey_step = np.array(prey_structure_list[-3])/total_prey_pop[-3]
-                prey_ls_step = np.array(prey_structure_list[-4])/total_prey_pop[-4]
-                if np.allclose(prey_eq_age, prey_step):
-                    if np.allclose(prey_eq_last_age, prey_ls_step):
-                        prey_eq_age = [prey_eq_age, prey_eq_last_age]
-                else:
-                    prey_eq_age = 'No Equilibrium'
-        else:
-            prey_eq_age = 'Extinct'
-        print(prey_eq_age)
+    fig4 = plt.figure()
+    x = range(params['num_years']+1)
+    y = np.array(density_data).T
+    plt.stackplot(x, y)
+    plt.title('Prey Killed by Density')
+    name = 'density_figures/by_density_' + param_to_vary + '_' + str(val)
+    fig4.savefig(name + '.png')
 
-        # Save the prey vectors over time.
-        age_structure_dfs[versions[i]] = pd.DataFrame(prey_structure_list)
-        predation_file.close()
-        density_file.close()
-        age_file.close()
+    print(param_to_vary + ' == ' + str(val))
+    print('\n')
+    print('Prey Equilibrium Age Structure(s):')
+    if total_prey_pop[-1] > 0:
+        prey_eq_age = np.array(prey_structure_list[-1])/total_prey_pop[-1]
+        prey_eq_last_age = np.array(prey_structure_list[-2])/total_prey_pop[-2]
+        if not np.allclose(prey_eq_age, prey_eq_last_age):
+            # There may be fluctuations in the age distribution. If the last
+            # two age distributions differ substantially, check if every other
+            # age distribution is equal. If so, the "equilibrium" is a pair
+            # of distributions.
+            prey_step = np.array(prey_structure_list[-3])/total_prey_pop[-3]
+            prey_ls_step = np.array(prey_structure_list[-4])/total_prey_pop[-4]
+            if np.allclose(prey_eq_age, prey_step):
+                if np.allclose(prey_eq_last_age, prey_ls_step):
+                    prey_eq_age = [prey_eq_age, prey_eq_last_age]
+            else:
+                prey_eq_age = 'No Equilibrium'
+    else:
+        prey_eq_age = 'Extinct'
+    print(prey_eq_age)
+
+    predation_file.close()
+    density_file.close()
+    age_file.close()
