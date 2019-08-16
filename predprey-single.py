@@ -64,7 +64,7 @@ verbose = bool(int(input('Print detailed output? (1 for yes, '
                          '0 for no): ')))
 source = input(('Enter working directory path. This directory must'
                 ' contain the base_mpms folder and parameters.txt'
-                ' file: ')) #'C:/Users/antho/Downloads/'
+                ' file: '))
 os.chdir(source)
 prey_filename = input('Enter prey filename, including .txt: ')
 predator_filename = input('Enter predator filename, including .txt: ')
@@ -84,7 +84,8 @@ with open('parameters.txt', 'r') as read_file:
     
 pos_integers = ['num_years', 'st_prey', 'st_predator']
 fractions = ['baseline_prey', 'baseline_predator']
-pos_reals = ['search', 'handling', 'resource']
+pos_reals = ['search', 'handling', 'resource',
+             'predation_prop']
 above_one = ['max_prey_surv_frac', 'max_predator_surv_frac',
              'max_prey_fec_frac', 'max_predator_fec_frac']
     
@@ -213,7 +214,8 @@ for year in range(params['num_years']):
                                                 predator_max_surv))                                                                              
 
     Mw = predator_M.copy()
-    Mw = Mw*max_predation # Predator fecundity increases with kill rate
+    Mw = Mw*max_predation*params['predation_prop'] # Predator fecundity
+                                                   # increases with kill rate
 
     # Computing density-modified fecundity and survival matrices
     Md = prey_M.dot(prey_dens_fec)
