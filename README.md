@@ -20,7 +20,7 @@ This program uses matrix population models (MPMs) to compute the expected long-t
 
 f(x) = 1/[1 + p*exp(d*(b-x)-1)-1)]
 
-Generally, we assume fecundity and survival follow exponential decline, which holds for certain values of the parameters in the functional form above. However, the logistic function form is used to allow for more flexibility, based on the user's assumptions about the baseline population from which the MPM was derived.
+  Generally, we assume fecundity and survival follow exponential decline, which holds for certain values of the parameters in the functional form above. However, the logistic function form is used to allow for more flexibility, based on the user's assumptions about the baseline population from which the MPM was derived.
 
 4) The amount of food ("resource") available to the prey population is constant, as in Jensen and Miller (2001). Considering that this quantity may vary significantly with environmental influences and competition with other species of the same trophic level, future versions of this program could be improved with non-constant functions for resource abundance.
 
@@ -31,6 +31,8 @@ Generally, we assume fecundity and survival follow exponential decline, which ho
 7) The intrinsic predation risk and functional response do not depend on prey age or predator age. This simplifies the parametrization,
 but a more realistic iteration of our model would account for the greater vulnerability of different ages of prey and greater hunting
 ability/fitness of different ages of predators.
+
+8) Predators will always consume the maximum number of prey that they feasibly can, given the constraints of the functional response equation noted in (6). This allows for the possibility that a predator species over-hunts, leaving the prey population extinct. Plausibly, however, a more accurate model would account for adjustments made by more intelligent predators to ration their limited resources.
 
 ## Parameters
 
