@@ -104,7 +104,8 @@ with open('../parameters.txt', 'r') as read_file:
     
 pos_integers = ['num_years', 'st_prey', 'st_predator']
 fractions = ['baseline_prey', 'baseline_predator']
-pos_reals = ['search', 'handling', 'resource']
+pos_reals = ['search', 'handling', 'resource',
+             'predation_prop']
 above_one = ['max_prey_surv_frac', 'max_predator_surv_frac',
              'max_prey_fec_frac', 'max_predator_fec_frac']
     
@@ -243,7 +244,8 @@ for val in param_values:
                                                     predator_max_surv))                                                                              
 
         Mw = predator_M.copy()
-        Mw = Mw*max_predation # Predator fecundity increases with kill rate
+        Mw = Mw*max_predation*params['predation_prop'] # Predator fecundity
+                                                   # increases with kill rate
 
         # Computing density-modified fecundity and survival matrices
         Md = prey_M.dot(prey_dens_fec)
