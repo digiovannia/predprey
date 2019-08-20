@@ -126,11 +126,11 @@ for par, val in params.items():
 
 for val in param_values:
     params[param_to_vary] = val
-    name = 'lost_to_pred/pred_' + param_to_vary + '_' + str(val)
+    name = 'lost_to_pred/pred_' + param_to_vary + '_' + str(val).replace('.', ',')
     predation_file = open(name + '.txt', 'w')
-    name = 'lost_to_dens/dens_' + param_to_vary + '_' + str(val)
+    name = 'lost_to_dens/dens_' + param_to_vary + '_' + str(val).replace('.', ',')
     density_file = open(name + '.txt', 'w')
-    name = 'age_structures/age_str_' + param_to_vary + '_' + str(val)
+    name = 'age_structures/age_str_' + param_to_vary + '_' + str(val).replace('.', ',')
     age_file = open(name + '.txt', 'w')
     predation_data = [[0]*prey_M.shape[0]]
     density_data = [[0]*prey_M.shape[0]]
@@ -323,7 +323,7 @@ for val in param_values:
     fig1 = plt.figure()
     plt.plot(total_prey_pop)
     plt.title('Total Prey Population Over Time')
-    name = 'total_figures/prey_pop_' + param_to_vary + '_' + str(val)
+    name = 'total_figures/prey_pop_' + param_to_vary + '_' + str(val).replace('.', ',')
     fig1.savefig(name + '.png')
 
     # Age distributions
@@ -333,7 +333,7 @@ for val in param_values:
         y = np.array(prey_structure_list).T / np.array(total_prey_pop)
         plt.stackplot(x, y)
     plt.title('Prey Age Structure Over Time')
-    name = 'dist_figures/prey_rel_age_' + param_to_vary + '_' + str(val)
+    name = 'dist_figures/prey_rel_age_' + param_to_vary + '_' + str(val).replace('.', ',')
     fig2.savefig(name + '.png')
 
     fig3 = plt.figure()
@@ -341,7 +341,7 @@ for val in param_values:
     y = np.array(predation_data).T
     plt.stackplot(x, y)
     plt.title('Prey Killed by Predation')
-    name = 'pred_figures/by_predation_' + param_to_vary + '_' + str(val)
+    name = 'pred_figures/by_predation_' + param_to_vary + '_' + str(val).replace('.', ',')
     fig3.savefig(name + '.png')
 
     fig4 = plt.figure()
@@ -349,10 +349,10 @@ for val in param_values:
     y = np.array(density_data).T
     plt.stackplot(x, y)
     plt.title('Prey Killed by Density')
-    name = 'density_figures/by_density_' + param_to_vary + '_' + str(val)
+    name = 'density_figures/by_density_' + param_to_vary + '_' + str(val).replace('.', ',')
     fig4.savefig(name + '.png')
 
-    print(param_to_vary + ' == ' + str(val))
+    print(param_to_vary + ' == ' + str(val).replace('.', ','))
     print('\n')
     print('Prey Equilibrium Age Structure(s):')
     if total_prey_pop[-1] > 0:
