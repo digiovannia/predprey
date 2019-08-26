@@ -320,37 +320,36 @@ for val in param_values:
             print(list(predator_structure))
             print('\n')
 
-    fig1 = plt.figure()
+    fig = plt.figure()
     plt.plot(total_prey_pop)
     plt.title('Total Prey Population Over Time')
     name = 'total_figures/prey_pop_' + param_to_vary + '_' + str(val).replace('.', ',')
-    fig1.savefig(name + '.png')
+    fig.savefig(name + '.png')
+    plt.cla()
 
     # Age distributions
-    fig2 = plt.figure()
     with np.errstate(divide='ignore', invalid='ignore'):
         x = range(params['num_years']+1)
         y = np.array(prey_structure_list).T / np.array(total_prey_pop)
         plt.stackplot(x, y)
     plt.title('Prey Age Structure Over Time')
     name = 'dist_figures/prey_rel_age_' + param_to_vary + '_' + str(val).replace('.', ',')
-    fig2.savefig(name + '.png')
+    fig.savefig(name + '.png')
+    plt.cla()
 
-    fig3 = plt.figure()
-    x = range(params['num_years']+1)
     y = np.array(predation_data).T
     plt.stackplot(x, y)
     plt.title('Prey Killed by Predation')
     name = 'pred_figures/by_predation_' + param_to_vary + '_' + str(val).replace('.', ',')
-    fig3.savefig(name + '.png')
+    fig.savefig(name + '.png')
+    plt.cla()
 
-    fig4 = plt.figure()
-    x = range(params['num_years']+1)
     y = np.array(density_data).T
     plt.stackplot(x, y)
     plt.title('Prey Killed by Density')
     name = 'density_figures/by_density_' + param_to_vary + '_' + str(val).replace('.', ',')
-    fig4.savefig(name + '.png')
+    fig.savefig(name + '.png')
+    plt.cla()
 
     print(param_to_vary + ' == ' + str(val).replace('.', ','))
     print('\n')
@@ -377,3 +376,4 @@ for val in param_values:
     predation_file.close()
     density_file.close()
     age_file.close()
+    plt.close(fig)
