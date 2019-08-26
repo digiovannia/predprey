@@ -96,18 +96,6 @@ def heatmap(z):
     fig.tight_layout()
     return fig
 
-'''
-'baseline_predator': {'values': ['0.95', '0.96', '0.97', '0.98', '0.99']
-'prey_dds': {'values': ['0.5', '2.5', '6.5', '12.5', '20.5'],
-'max_prey_surv_frac': {'values': ['1.00005',
-   '1.00025',
-   '1.00125',
-   '1.0040499999999997',
-   '1.0090499999999991'],
-'prey_ddf': {'values': ['0.5', '2.5', '6.5', '12.5', '20.5'],
-'handling': {'values': ['0.005', '0.025', '0.045', '0.07', '0.095'],
-'''
-
 #############################################################################
 ############################# Reading in data files #########################
 
@@ -119,6 +107,8 @@ source = input(('Enter working directory path. This directory must'
 os.chdir(source)
 prey_filename = input('Enter prey filename, including .txt: ')
 predator_filename = input('Enter predator filename, including .txt: ')
+different_predation = bool(int(input('Do you want to supply a custom predation '
+                                     'matrix? (1 for yes, 0 for no): ')))
 spec_folder = prey_filename[:-4] + '_' + predator_filename[:-4]
 
 # Creates a folder and all the necessary subfolders for the chosen
@@ -198,7 +188,10 @@ for p in parameters:
                                 # functional response; the more prey resource, which
                                 # is assumed proportional to prey area, the lower
                                 # the intrinsic predation risk
-        Q = np.ones((prey_M.shape[0], predator_M.shape[0]))
+        if different_predation:
+            Q = np.array(pd.read_csv('predation_matrix.txt', sep='\t', header=None))
+        else:
+            Q = np.ones((prey_M.shape[0], predator_M.shape[0]))
         # Simplifying assumption that predation rates do not differ between ages
         Q = q*Q
         # Simplifying assumption that density dependence strengths do not differ
