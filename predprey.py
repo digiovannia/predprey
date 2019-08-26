@@ -76,6 +76,8 @@ source = input(('Enter working directory path. This directory must'
 os.chdir(source)
 prey_filename = input('Enter prey filename, including .txt: ')
 predator_filename = input('Enter predator filename, including .txt: ')
+different_predation = bool(int(input('Do you want to supply a custom predation '
+                                     'matrix? (1 for yes, 0 for no): ')))
 spec_folder = prey_filename[:-4] + '_' + predator_filename[:-4]
 
 # Creates a folder and all the necessary subfolders for the chosen
@@ -139,7 +141,10 @@ for val in param_values:
                              # functional response; the more prey resource, which
                              # is assumed proportional to prey area, the lower
                              # the intrinsic predation risk
-    Q = np.ones((prey_M.shape[0], predator_M.shape[0]))
+    if different_predation:
+        Q = np.array(pd.read_csv('predation_matrix.txt', sep='\t', header=None))
+    else:
+        Q = np.ones((prey_M.shape[0], predator_M.shape[0]))
     # Simplifying assumption that predation rates do not differ between ages
     Q = q*Q
     # Simplifying assumption that density dependence strengths do not differ
