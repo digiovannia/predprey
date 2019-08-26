@@ -1,6 +1,6 @@
 # predprey
 
-This program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Expanding on the model presented in Jensen and Miller (2001), predprey applies discrete-time updates to the age structures of a predator population and prey population via matrix algebra. Given two species whose MPMs are available from the COMADRE database, the script predprey.py produces (in the specified file format):
+This program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Expanding on the model presented in Jensen and Miller (2001), predprey applies discrete-time updates to the age structures of a predator population and prey population via matrix operations. Given two species whose MPMs are available from the COMADRE database, and a particular parameter a user wishes to vary, the script predprey.py produces (in the specified file format):
 
 1) Prey age structures at each of a specified number of years (.txt)
 2) Graphs of the total prey population over time (.png)
@@ -10,6 +10,13 @@ This program uses matrix population models (MPMs) to compute the expected long-t
 6) Graphs of prey lost to predation over time (.png)
 7) Graphs of prey lost to density over time (.png)
 
+Alternatively, a user can run the script predprey-single.py, which prints summaries of the information above and displays each plot, corresponding to a simulation based on the default parameters. To compare the effects of variation of several parameters on the following outcomes of interest, the script predprey-heatmap.py produces all of the files above for each parameter, plus a set of heatmaps (.png files) for:
+
+1) Total number of prey that die of predation over the specified number of years
+2) Total number of prey that die of density effects
+3) Fraction of prey that die of predation
+4) Percent of prey in the equilibrium population that are age 0
+
 ## Assumptions
 
 1) The rate of predation follows a Type II functional response. Future iterations of this program may benefit from the use of other functional response curves according to the particular predator species studied.
@@ -18,9 +25,9 @@ This program uses matrix population models (MPMs) to compute the expected long-t
 
 3) Fecundity and survival probabilities for a given population decline with the density of that population according to a logistic function of the form:
 
-f(x) = 1/[1 + p*exp(d*(b-x)-1)-1)]
+f(x) = 1/[1 + p*exp(d*(b-x))-1)]
 
-  Generally, we assume fecundity and survival follow exponential decline, which holds for certain values of the parameters in the functional form above. However, the logistic function form is used to allow for more flexibility, based on the user's assumptions about the baseline population from which the MPM was derived.
+  Where x is a quantity inverse to the population density. Generally, we assume fecundity and survival follow exponential decline, which approximately holds for certain values of the parameters in the functional form above. However, the logistic function form is used to allow for more flexibility, based on the user's assumptions about the baseline population from which the MPM was derived.
 
 4) The amount of food ("resource") available to the prey population is constant, as in Jensen and Miller (2001). Considering that this quantity may vary significantly with environmental influences and competition with other species of the same trophic level, future versions of this program could be improved with non-constant functions for resource abundance.
 
@@ -33,6 +40,8 @@ but a more realistic iteration of our model would account for the greater vulner
 ability/fitness of different ages of predators.
 
 8) Predators will always consume the maximum number of prey that they feasibly can, given the constraints of the functional response equation noted in (6). This allows for the possibility that a predator species over-hunts, leaving the prey population extinct. Plausibly, however, a more accurate model would account for adjustments made by more intelligent predators to ration their limited resources.
+
+9) The prey do not compete with any other species for their food resource, and they have only one predator species. 
 
 ## Parameters
 
