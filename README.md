@@ -94,6 +94,12 @@ be space-separated.
 
 Based on 5 and 6, the script will create a folder (if one doesn't already exist) for the desired prey-predator species pair, which will contain subfolders for each of the 8 results specified in the intro paragraph. For each value of the varying parameter within the specified range, text files and graphs for the projection of the prey and predator age structures over time are generated, based on the equations detailed in the equations.tex file in this repo.
 
+Running predprey-single.py (which provides results only for the default parameters) includes only prompts 3-7, and in addition to prompts 3-7, predprey-heatmap.py also includes the following prompts:
+
+1) Number of values taken by each varied parameter.
+2) Names of all the parameters the user wishes to vary.
+3) For each of the above parameters, minimum and maximum values for the ranges over which they will vary.
+
 ## References
 
 1) A. Jensen, Miller D. Age structured matrix predation model for the dynamics of wolf and deer populations. Ecol. Model., 141 (1) (2001), pp. 299-305.
