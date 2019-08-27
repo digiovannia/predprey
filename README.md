@@ -75,6 +75,8 @@ baseline_prey:  fraction of the maximum population at which the base prey MPM is
 
 baseline_predator:  baseline fraction for predator MPM
 
+predation_prop:  factor by which functional response is scaled before predator fecundity is multiplied by it; i.e. this parameter controls the strength of the effect of the kill rate of predators on their fecundity
+
 noise_sd:  standard deviation of a mean-zero normal random variable added to the age 0 survival probability of the prey at each time step; if 0, there is no noise
 
 ## Guide
