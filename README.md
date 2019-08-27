@@ -35,9 +35,7 @@ f(x) = 1/[1 + p*exp(d*(b-x))-1)]
 
 6) Predator fecundity increases with the predation rate, as defined by the type II functional response. This follows the assumption of Rosenzweig and MacArthur (1963).
 
-7) The intrinsic predation risk and functional response do not depend on prey age or predator age. This simplifies the parametrization,
-but a more realistic iteration of our model would account for the greater vulnerability of different ages of prey and greater hunting
-ability/fitness of different ages of predators.
+7) By default, the intrinsic predation risk and functional response do not depend on prey age or predator age. This simplifies the parametrization, but a more realistic iteration of our model would account for the greater vulnerability of different ages of prey and greater hunting ability/fitness of different ages of predators. We include a functionality for customizing the predation matrix if the user desires.
 
 8) Predators will always consume the maximum number of prey that they feasibly can, given the constraints of the functional response equation noted in (6). This allows for the possibility that a predator species over-hunts, leaving the prey population extinct. Plausibly, however, a more accurate model would account for adjustments made by more intelligent predators to ration their limited resources.
 
@@ -77,21 +75,24 @@ baseline_prey:  fraction of the maximum population at which the base prey MPM is
 
 baseline_predator:  baseline fraction for predator MPM
 
+noise_sd:  standard deviation of a mean-zero normal random variable added to the age 0 survival probability of the prey at each time step; if 0, there is no noise
+
 ## Guide
 
-The predprey.py script reads from the parameters.txt input file and the base_mpms folder, which must be contained within your working directory. parameters.txt must be in JSON format, containing key-value pairs such that all keys match those listed under "Parameters" above. This repo contains a sample parameters.txt file. Each base MPM is stored in the base_mpms folder in a text file with the format matching the example provided in this repository, that is, with entries on the same row separated by tabs.
+The predprey.py script reads from the parameters.txt input file and the base_mpms folder, which must be contained within your working directory. Optionally, it will also read from the predation_matrix.txt file if the custom predation matrix functionality is activated. parameters.txt must be in JSON format, containing key-value pairs such that all keys match those listed under "Parameters" above. This repo contains a sample parameters.txt file. Each base MPM is stored in the base_mpms folder in a text file with the format matching the example provided in this repository, that is, with entries on the same row separated by tabs.
 
 When you execute the command "python predprey.py", you will be prompted to specify:
 
 1) The name of the parameter whose value you would like to vary.
 2) A string containing the minimum, maximum (exclusive), and increment over which the parameter value will vary. These three values must
 be space-separated.
-3) Whether you would like detailed output to be printed to the terminal.
+3) Whether you would like detailed output to be printed to the terminal. If not, only the parameter values and corresponding equilibrium prey age distribution will be printed.
 4) The path for your working directory.
 5) File name for the prey species.
 6) File name for the predator species.
+7) Whether you want to supply a custom predation matrix.
 
-Based on 5 and 6, the script will create a folder for the desired prey-predator species pair, which will contain subfolders for each of the 7 results specified in the intro paragraph. For each value of the varying parameter within the specified range, text files and graphs for the projection of the prey and predator age structures over time are generated, based on the equations detailed in the equations.tex file in this repo.
+Based on 5 and 6, the script will create a folder (if one doesn't already exist) for the desired prey-predator species pair, which will contain subfolders for each of the 8 results specified in the intro paragraph. For each value of the varying parameter within the specified range, text files and graphs for the projection of the prey and predator age structures over time are generated, based on the equations detailed in the equations.tex file in this repo.
 
 ## References
 
