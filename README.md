@@ -1,6 +1,6 @@
 # predprey
 
-This program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Expanding on the model presented in Jensen and Miller (2001), predprey applies discrete-time updates to the age structures of a predator population and prey population via matrix operations. Given two species whose MPMs are available from the COMADRE database, and a particular parameter a user wishes to vary, the script predprey.py produces (in the specified file format):
+This Python program uses matrix population models (MPMs) to compute the expected long-term dynamics of age structure within a predator-prey system. Expanding on the model presented in Jensen and Miller (2001), predprey applies discrete-time updates to the age structures of a predator population and prey population via matrix operations. Given two species whose MPMs are available from the COMADRE database, and a particular parameter a user wishes to vary, the script predprey.py produces (in the specified file format):
 
 1) Prey age structures at each of a specified number of years (.txt)
 2) Graphs of the total prey population over time (.png)
@@ -101,6 +101,17 @@ Running predprey-single.py (which provides results only for the default paramete
 1) Number of values taken by each varied parameter.
 2) Names of all the parameters the user wishes to vary.
 3) For each of the above parameters, minimum and maximum values for the ranges over which they will vary.
+
+## Dependencies
+
+Our scripts require the following packages:
+
+* numpy
+* pandas
+* matplotlib
+* seaborn
+* json
+* os
 
 ## References
 
