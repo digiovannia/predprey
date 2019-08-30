@@ -13,8 +13,8 @@
     "prey_dds": 4.8,
     "predator_ddf": 4.8,
     "predator_dds": 4.8,
-    "baseline_prey": 0.9999,
-    "baseline_predator": 0.9999,
+    "baseline_prey": 0.0001,
+    "baseline_predator": 0.0001,
     "predation_prop": 1,
     "noise_sd": 0
 }
