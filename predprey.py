@@ -377,6 +377,8 @@ for val in param_values:
     else:
         prey_eq_age = 'Extinct'
     print(prey_eq_age)
+    print('\n')
+    print('\n')
 
     predation_file.close()
     density_file.close()
