@@ -53,7 +53,7 @@ def logistic_scale(DNt, d, b, base, M):
     Based on the assumption of exponentially declining fecundity
     and survival probability with density.
     '''
-    p = (np.exp(d*(b-DNt))-1)/(np.exp(d*(b-1))-1)
+    p = (np.exp(d*(1-b-DNt))-1)/(np.exp(d*(-b))-1)
     ratio = np.divide(base - M, M, where=M!=0)
     return np.divide(1, 1 + ratio*p, where=(1 + ratio*p)!=0)
 
@@ -86,13 +86,12 @@ def heatmap(z):
     ax.set_title(title_format(z))
     for i in range(y):
         for j in range(x):
-            #number = round(r[i,j], 3)
             number = round(par_vals[parameters[i]]['values'][j], 4)
-            #if number > cutoff:
-            #    text = ax.text(j, i, str(number),
-            #                   ha="center", va="center")
-            #else:
-            text = ax.text(j, i, str(number),
+            if number > cutoff:
+                text = ax.text(j, i, str(number),
+                               ha="center", va="center")
+            else:
+                text = ax.text(j, i, str(number),
                                ha="center", va="center", color="w")
     fig.tight_layout()
     return fig
@@ -427,6 +426,8 @@ for p in parameters:
         else:
             prey_eq_age = 'Extinct'
         print(prey_eq_age)
+        print('\n')
+        print('\n')
 
         predation_file.close()
         density_file.close()
