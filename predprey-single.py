@@ -52,7 +52,7 @@ def logistic_scale(DNt, d, b, base, M):
     Based on the assumption of exponentially declining fecundity
     and survival probability with density.
     '''
-    p = (np.exp(d*(b-DNt))-1)/(np.exp(d*(b-1))-1)
+    p = (np.exp(d*(1-b-DNt))-1)/(np.exp(d*(-b))-1)
     ratio = np.divide(base - M, M, where=M!=0)
     return np.divide(1, 1 + ratio*p, where=(1 + ratio*p)!=0)
 
