@@ -62,7 +62,7 @@ def results(x):
     all_res = []
     for p in parameters:
         ls = par_vals[p][x]
-        new_ls = list(np.array(ls) / np.max(np.array(ls)))
+        new_ls = list(np.array(ls))
         all_res.append(new_ls)
     return(np.array(all_res))
 
@@ -75,7 +75,7 @@ def title_format(z):
 def heatmap(z):
     r = results(z)
     cutoff = np.median(r)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,10))
     im = ax.imshow(r)
     x = r.shape[1]
     y = r.shape[0]
@@ -86,12 +86,13 @@ def heatmap(z):
     ax.set_title(title_format(z))
     for i in range(y):
         for j in range(x):
-            number = round(r[i,j], 3)
-            if number > cutoff:
-                text = ax.text(j, i, str(number),
-                               ha="center", va="center")
-            else:
-                text = ax.text(j, i, str(number),
+            #number = round(r[i,j], 3)
+            number = round(par_vals[parameters[i]]['values'][j], 4)
+            #if number > cutoff:
+            #    text = ax.text(j, i, str(number),
+            #                   ha="center", va="center")
+            #else:
+            text = ax.text(j, i, str(number),
                                ha="center", va="center", color="w")
     fig.tight_layout()
     return fig
@@ -137,6 +138,8 @@ for p in parameters:
                     'separated: ' % p).split()
     values = list(np.linspace(float(max_min[0]), float(max_min[1]), num_vals))
     par_vals[p]['values'] = values
+
+heatmap_filename = input('Enter filename for heatmaps: ')
 
 prey_MPM = np.array(pd.read_csv('../base_mpms/' + prey_filename,
                                 sep='\t', header=None))
@@ -484,11 +487,13 @@ for p in parameters:
         fraction_deaths_by_predation.append(z)
     par_vals[p]['fraction_deaths_by_predation'] = fraction_deaths_by_predation
 
+os.chdir('./heatmaps')
+
 h1 = heatmap('fraction_deaths_by_predation')
-h1.savefig('heatmaps/fraction_deaths_by_predation_' + '_'.join(parameters))
+h1.savefig('fraction_deaths_by_predation_' + heatmap_filename + '.png')
 h2 = heatmap('total_deaths_by_predation')
-h2.savefig('heatmaps/total_deaths_by_predation_' + '_'.join(parameters))
+h2.savefig('total_deaths_by_predation_' + heatmap_filename + '.png')
 h3 = heatmap('total_deaths_by_density')
-h3.savefig('heatmaps/total_deaths_by_density_' + '_'.join(parameters))
+h3.savefig('total_deaths_by_density_' + heatmap_filename + '.png')
 h4 = heatmap('percent_age_0_at_equilibrium')
-h4.savefig('heatmaps/percent_age_0_at_equilibrium_' + '_'.join(parameters))
+h4.savefig('percent_age_0_at_equilibrium_' + heatmap_filename + '.png')
